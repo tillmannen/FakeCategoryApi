@@ -24,6 +24,20 @@ namespace FakeCategoryApi {
         {
             _databaseSettings = settings.Value;
             this.client = new DocumentClient(new Uri(_databaseSettings.EndpointUri), _databaseSettings.PrimaryKey);
+
+            try
+            {
+                SetUpDatabase();
+
+            }
+            catch (DocumentClientException de)
+            {
+                    Exception baseException = de.GetBaseException();
+            }
+            catch (Exception e)
+            {
+                    Exception baseException = e.GetBaseException();
+            }
         }
 
         private async void SetUpDatabase(){

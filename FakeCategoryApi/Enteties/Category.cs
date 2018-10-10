@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 namespace FakeCategoryApi.Enteties
 {
@@ -10,12 +11,16 @@ namespace FakeCategoryApi.Enteties
             this.Value = value;
             this.Timestamp = DateTime.Now;
             this.Score = score ?? 1;
+
+            this.Id = Value + "_" + Language.ToString();
         }
 
         public Category()
         {
         }
 
+        [JsonProperty(PropertyName="id")]
+        public string Id { get; set; }
         public Language Language { get; set; }
         public string Value { get; set; }
         public int Score { get; set; }
