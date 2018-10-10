@@ -26,7 +26,7 @@ namespace FakeCategoryApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
+            services.Configure<DatabaseSettings>(Configuration.GetSection("DatabaseSettings"));
             ResolveDependencies(services);
         }
 
