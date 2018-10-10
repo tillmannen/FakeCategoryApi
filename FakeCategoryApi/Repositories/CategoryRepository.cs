@@ -1,8 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using FakeCategoryApi.Enteties;
-using Microsoft.Azure.Storage; // Namespace for StorageAccounts
-using Microsoft.Azure.CosmosDB.Table; // Namespace for Table storage types
+using Microsoft.Azure.Documents.Client;
+using System.Threading.Tasks;
+using System.Net;
+using Microsoft.Azure.Documents;
+using Newtonsoft.Json;
+using System;
 
 public interface ICategoryRepository {
     IEnumerable<Category> GetAllCategories();
@@ -11,51 +15,31 @@ public interface ICategoryRepository {
 
 public class CategoryRepository : ICategoryRepository
 {
-    private const string connectionString = "DefaultEndpointsProtocol=https;AccountName=afakestorage;AccountKey=p51oHxuvSyfSEOov0vpfTpqPozpqRJcZESh9XxjhOWYRMKjSqUVemnsQNZLYPGUjDXjs2LH7J9vNyCJeXaiJFw==;TableEndpoint=https://afakestorage.table.cosmosdb.azure.com:443/;";
-    private CloudStorageAccount _storageAccount;
-    private CloudTableClient _tableClient;
-    CloudTable _categoriesTable;
+    private const string EndpointUri = "https://afakestorage.table.cosmosdb.azure.com:443/";
+    private const string PrimaryKey = "p51oHxuvSyfSEOov0vpfTpqPozpqRJcZESh9XxjhOWYRMKjSqUVemnsQNZLYPGUjDXjs2LH7J9vNyCJeXaiJFw==";
+    private const string DatabaseName = "GameDb";
+    private const string CategoriesCollectionsName = "collections";
+    private DocumentClient client;
+
 
     public CategoryRepository()
     {
-        _storageAccount = CloudStorageAccount.Parse(connectionString);
-        _tableClient = _storageAccount.CreateCloudTableClient();
-        _categoriesTable = _tableClient.GetTableReference("categories");
+        this.client = new DocumentClient(new Uri(EndpointUri), PrimaryKey);
     }
+
+    private async void SetUpDatabase(){
+        await this.client.CreateDatabaseIfNotExistsAsync(new Database { Id = DatabaseName });
+        await this.client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(DatabaseName), new DocumentCollection { Id = CategoriesCollectionsName });
+    }
+
     public IEnumerable<Category> GetAllCategories()
     {
-        TableQuery<Category> query = new TableQuery<Category>();
-
-        IEnumerable<Category> results;
-
-        TableContinuationToken token = null;
-        do
-        {
-            TableQuerySegment<Category> resultSegment = _categoriesTable.ExecuteQuerySegmentedAsync(query, token).Result;
-            token = resultSegment.ContinuationToken;
-
-            results = resultSegment.Results;
-        } while (token != null);
-
-        return results;
+        return new List<Category>();
     }
 
     public IEnumerable<Category> GetAllCategoriesByLanguage(Language language)
     {
-        TableQuery<Category> query = new TableQuery<Category>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, language.ToString()));
-
-        IEnumerable<Category> results;
-
-        TableContinuationToken token = null;
-        do
-        {
-            TableQuerySegment<Category> resultSegment = _categoriesTable.ExecuteQuerySegmentedAsync(query, token).Result;
-            token = resultSegment.ContinuationToken;
-
-            results = resultSegment.Results;
-        } while (token != null);
-
-        return results;
+        return new List<Category>();
     }
 }
 
