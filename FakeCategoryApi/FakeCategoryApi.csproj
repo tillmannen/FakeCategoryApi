@@ -1,14 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <UserSecretsId>b64acbc5-cb23-472d-969d-df17c5316c84</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="wwwroot\"/>
+    <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App"/>
-    <PackageReference Include="Microsoft.Azure.Storage.Common" Version="9.4.0.2-preview"/>
-    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.1.1"/>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0"/>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Azure.Storage.Common" Version="9.4.0.2-preview" />
+    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.1.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
   </ItemGroup>
 </Project>
