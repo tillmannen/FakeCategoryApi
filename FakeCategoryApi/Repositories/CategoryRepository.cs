@@ -28,7 +28,6 @@ namespace FakeCategoryApi {
             try
             {
                 SetUpDatabase();
-
             }
             catch (DocumentClientException de)
             {
@@ -47,35 +46,124 @@ namespace FakeCategoryApi {
 
         public IEnumerable<Category> GetAllCategories()
         {
-            return new List<Category>();
+            FeedOptions queryOptions = new FeedOptions { MaxItemCount = -1 };
+
+            var all = client.CreateDocumentQuery<Category>(UriFactory.CreateDocumentCollectionUri(_databaseSettings.DatabaseName, _databaseSettings.CategoriesCollectionsName), queryOptions);
+
+            return all;
         }
 
         public IEnumerable<Category> GetAllCategoriesByLanguage(Language language)
         {
-            return new FakeCategoryRepository().GetAllCategoriesByLanguage(language);
+            return GetAllCategories().Where(c => c.Language == language);
+        }
+
+
+        private async Task CreateCategoryDocumentIfNotExists(string databaseName, string collectionName, Category category)
+        {
+            try
+            {
+                await this.client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, category.Id));
+            }
+            catch (DocumentClientException de)
+            {
+                if (de.StatusCode == HttpStatusCode.NotFound)
+                {
+                    await this.client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), category);
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
     }
 
-    public class FakeCategoryRepository : ICategoryRepository
-    {
-        List<Category> Categories = new List<Category>(){
-            new Category (Language.Swedish, "Djur i Afrika"),
-            new Category (Language.Swedish, "Musikinstrument"),
-            new Category (Language.Swedish, "Vårdutrustning"),
-            new Category (Language.Swedish, "Kulturpersonlighet"),
-            new Category (Language.English, "African animals"),
-            new Category (Language.English, "Music instruments"),
-            new Category (Language.English, "Celebreties")
-        };
+    // public class FakeCategoryRepository : ICategoryRepository
+    // {
+    //     List<Category> Categories = new List<Category>(){
+    //         new Category (Language.Swedish, "Barn"),
+    //         new Category (Language.Swedish, "Barnprogram"),
+    //         new Category (Language.Swedish, "Bilar"),
+    //         new Category (Language.Swedish, "Brott"),
+    //         new Category (Language.Swedish, "Butikskedjor"),
+    //         new Category (Language.Swedish, "Böcker"),
+    //         new Category (Language.Swedish, "Cirkus"),
+    //         new Category (Language.Swedish, "Datorer"),
+    //         new Category (Language.Swedish, "Djur"),
+    //         new Category (Language.Swedish, "Djur i Afrika"),
+    //         new Category (Language.Swedish, "Djur på film"),
+    //         new Category (Language.Swedish, "Drycker"),
+    //         new Category (Language.Swedish, "Fantasy"),
+    //         new Category (Language.Swedish, "Fest"),
+    //         new Category (Language.Swedish, "Film"),
+    //         new Category (Language.Swedish, "Flyg"),
+    //         new Category (Language.Swedish, "Fobier"),
+    //         new Category (Language.Swedish, "Frukost"),
+    //         new Category (Language.Swedish, "Frukt"),
+    //         new Category (Language.Swedish, "Fåglar"),
+    //         new Category (Language.Swedish, "Förvaring"),
+    //         new Category (Language.Swedish, "Geografi"),
+    //         new Category (Language.Swedish, "Grönsaker"),
+    //         new Category (Language.Swedish, "Helg"),
+    //         new Category (Language.Swedish, "Historia"),
+    //         new Category (Language.Swedish, "Hjältar"),
+    //         new Category (Language.Swedish, "Hobby"),
+    //         new Category (Language.Swedish, "Höst"),
+    //         new Category (Language.Swedish, "Internet"),
+    //         new Category (Language.Swedish, "Jul"),
+    //         new Category (Language.Swedish, "Kalla saker"),
+    //         new Category (Language.Swedish, "Kläder"),
+    //         new Category (Language.Swedish, "Kroppsdelar"),
+    //         new Category (Language.Swedish, "Kulturpersonlighet"),
+    //         new Category (Language.Swedish, "Kända duos"),
+    //         new Category (Language.Swedish, "Kända musiker"),
+    //         new Category (Language.Swedish, "Kända svenskar"),
+    //         new Category (Language.Swedish, "Köksredskap"),
+    //         new Category (Language.Swedish, "Leksaker"),
+    //         new Category (Language.Swedish, "Länder"),
+    //         new Category (Language.Swedish, "Mord"),
+    //         new Category (Language.Swedish, "Musik"),
+    //         new Category (Language.Swedish, "Musikinstrument"),
+    //         new Category (Language.Swedish, "Ovanor"),
+    //         new Category (Language.Swedish, "Politiker"),
+    //         new Category (Language.Swedish, "Påsk"),
+    //         new Category (Language.Swedish, "Reptiler"),
+    //         new Category (Language.Swedish, "Sci-Fi"),
+    //         new Category (Language.Swedish, "Semester"),
+    //         new Category (Language.Swedish, "Serier"),
+    //         new Category (Language.Swedish, "Sidekicks"),
+    //         new Category (Language.Swedish, "Skola"),
+    //         new Category (Language.Swedish, "Skräpmat"),
+    //         new Category (Language.Swedish, "Skurkar"),
+    //         new Category (Language.Swedish, "Smultronställen"),
+    //         new Category (Language.Swedish, "Sommar"),
+    //         new Category (Language.Swedish, "Spel"),
+    //         new Category (Language.Swedish, "Sport"),
+    //         new Category (Language.Swedish, "TV-spel"),
+    //         new Category (Language.Swedish, "Trådlöst"),
+    //         new Category (Language.Swedish, "Under jorden"),
+    //         new Category (Language.Swedish, "Vapen"),
+    //         new Category (Language.Swedish, "Varumärken"),
+    //         new Category (Language.Swedish, "Vinter"),
+    //         new Category (Language.Swedish, "Växter"),
+    //         new Category (Language.Swedish, "Vår"),
+    //         new Category (Language.Swedish, "Vårdutrustning"),
 
-        public IEnumerable<Category> GetAllCategories()
-        {
-            return Categories;
-        }
+    //         new Category (Language.English, "African animals"),
+    //         new Category (Language.English, "Music instruments"),
+    //         new Category (Language.English, "Celebreties"),
 
-        public IEnumerable<Category> GetAllCategoriesByLanguage(Language language)
-        {
-            return Categories.Where(c => c.Language == language);
-        }
-    }   
+    //     };
+
+    //     public IEnumerable<Category> GetAllCategories()
+    //     {
+    //         return Categories;
+    //     }
+
+    //     public IEnumerable<Category> GetAllCategoriesByLanguage(Language language)
+    //     {
+    //         return Categories.Where(c => c.Language == language);
+    //     }
+    // }   
 }
