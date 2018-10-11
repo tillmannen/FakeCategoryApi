@@ -20,7 +20,7 @@ namespace FakeCategoryApi.Controllers
 
         // GET api/values
         [HttpGet]
-        public ActionResult<string> Get()
+        public ActionResult<string> GetRandom()
         {
             var categories = _categoryRepository.GetAllCategoriesByLanguage(Language.Swedish).ToList();
 
@@ -30,12 +30,20 @@ namespace FakeCategoryApi.Controllers
             return categories[index].Value;
         }
 
-        // [HttpGet]
-        // public ActionResult<IEnumerable<string>> GetAll(){
-        //     var categories = _categoryRepository.GetAllCategoriesByLanguage(Language.Swedish);
+        [HttpGet]
+        public ActionResult<IEnumerable<string>> GetAll(){
+            var categories = _categoryRepository.GetAllCategories();
 
-        //     return categories.Select(c => c.Value).ToList();
-        // }
+            return categories.Select(c => c.Value).ToList();
+        }
+
+        [HttpGet]
+        public ActionResult<IEnumerable<string>> GetAllByLanguage(string languageString){
+            Enum.TryParse<Language>(languageString, true, out var language);
+            var categories = _categoryRepository.GetAllCategoriesByLanguage(language);
+
+            return categories.Select(c => c.Value).ToList();
+        }
 
         // // POST api/values
         // [HttpPost]
