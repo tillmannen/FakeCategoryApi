@@ -20,6 +20,7 @@ namespace FakeCategoryApi.Controllers
 
         // GET api/values
         [HttpGet]
+        [Route("getrandom")]
         public ActionResult<string> GetRandom()
         {
             var categories = _categoryRepository.GetAllCategoriesByLanguage(Language.Swedish).ToList();
@@ -31,6 +32,7 @@ namespace FakeCategoryApi.Controllers
         }
 
         [HttpGet]
+        [Route("getall")]
         public ActionResult<IEnumerable<string>> GetAll(){
             var categories = _categoryRepository.GetAllCategories();
 
@@ -38,11 +40,23 @@ namespace FakeCategoryApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<string>> GetAllByLanguage(string languageString){
-            Enum.TryParse<Language>(languageString, true, out var language);
+        [Route("getallbylanguage")]
+            public ActionResult<IEnumerable<string>> GetAllByLanguage([FromQuery]string languageString){
+            if(!Enum.TryParse<Language>(languageString, true, out var language))
+                return new BadRequestResult();
             var categories = _categoryRepository.GetAllCategoriesByLanguage(language);
 
             return categories.Select(c => c.Value).ToList();
+        }
+
+        [HttpGet]
+        [Route("getallobjectsbylanguage")]
+            public ActionResult<IEnumerable<Category>> GetAllObjectsByLanguage([FromQuery]string languageString){
+            if(!Enum.TryParse<Language>(languageString, true, out var language))
+                return new BadRequestResult();
+            var categories = _categoryRepository.GetAllCategoriesByLanguage(language);
+
+            return categories.ToList();
         }
 
         // // POST api/values
